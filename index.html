@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#081b2c" />
+  <link rel="icon" href="data:," />
+  <title>WattWise — Electricity Bill Estimator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg:#f5f8f7;
+      --surface:#ffffff;
+      --surface-2:#eaf1ef;
+      --ink:#0a1c28;
+      --muted:#50626d;
+      --line:#d9e4e1;
+      --navy:#071c2d;
+      --navy-2:#0b2b3f;
+      --aqua:#19d7c1;
+      --aqua-soft:#c9fff5;
+      --lime:#b9f227;
+      --lime-soft:#efffc7;
+      --amber:#ffb84d;
+      --shadow:0 22px 60px rgba(6,28,44,.12);
+      --radius:22px;
+      --display:"Bricolage Grotesque", sans-serif;
+      --body:"Manrope", sans-serif;
+    }
+    @media (prefers-color-scheme:dark){
+      :root{
+        --bg:#06131d;
+        --surface:#0b202e;
+        --surface-2:#102b3a;
+        --ink:#effbf8;
+        --muted:#a8bbc2;
+        --line:#24404c;
+        --navy:#031019;
+        --navy-2:#092333;
+        --aqua:#27e5ce;
+        --aqua-soft:#0e4c48;
+        --lime:#c7f93e;
+        --lime-soft:#2b4512;
+        --shadow:0 22px 60px rgba(0,0,0,.3);
+      }
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.65;overflow-x:hidden}
+    .ambient-orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+    .ambient-orbs span{position:absolute;width:420px;height:420px;border-radius:50%;filter:blur(90px);opacity:.08;will-change:transform}
+    .ambient-orbs span:first-child{left:-180px;top:30%;background:var(--aqua);animation:ambientFloat 16s ease-in-out infinite}
+    .ambient-orbs span:nth-child(2){right:-210px;top:58%;background:var(--lime);animation:ambientFloat 19s -7s ease-in-out infinite reverse}
+    @keyframes ambientFloat{0%,100%{transform:translate3d(0,0,0) scale(.92)}50%{transform:translate3d(60px,-72px,0) scale(1.12)}}
+    header,main,footer{position:relative;z-index:1}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    a{color:inherit;text-decoration:none}
+    svg{display:block}
+    .wrap{width:min(1180px,calc(100% - 40px));margin-inline:auto}
+    header{position:absolute;inset:0 0 auto;z-index:20;color:#fff;padding-top:16px}
+    .nav{height:64px;display:flex;align-items:center;justify-content:space-between;gap:26px;padding:0 16px;border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(7,28,45,.72);backdrop-filter:blur(16px);box-shadow:0 14px 36px rgba(0,0,0,.12)}
+    .brand{display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-size:19px;font-weight:800;letter-spacing:-.025em;color:#fff}
+    .brand-mark{position:relative;display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--lime);color:#10210c;box-shadow:0 0 0 5px rgba(185,242,39,.08)}
+    .brand-mark:after{content:"";position:absolute;inset:-5px;border:1px solid rgba(185,242,39,.28);border-radius:14px;animation:brandOrbit 4s linear infinite}
+    .brand-mark svg{width:18px}
+    @keyframes brandOrbit{50%{transform:rotate(180deg) scale(1.06)}100%{transform:rotate(360deg)}}
+    .nav-links{display:flex;gap:24px;align-items:center;margin-left:auto;font-weight:600;font-size:14px;color:#c9d7dc}
+    .nav-links a:hover,.nav-links a:focus{color:#fff}
+    .nav-cta{display:inline-flex;align-items:center;gap:9px;padding:11px 17px;border-radius:11px;background:var(--lime);color:#10210c;font-weight:800;font-size:14px}
+    .nav-cta svg{width:16px}
+    .menu-btn{display:none;border:0;background:transparent;color:white;padding:8px}
+    .hero{position:relative;isolation:isolate;min-height:760px;padding:142px 0 90px;color:#f6fffd;background:var(--navy);overflow:hidden}
+    .hero:before{content:"";position:absolute;width:520px;height:520px;border-radius:50%;right:-180px;top:-180px;border:100px solid rgba(25,215,193,.07);z-index:-1}
+    .hero:after{content:"";position:absolute;left:-120px;bottom:-260px;width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(185,242,39,.11),transparent 67%);z-index:-1}
+    .grid-lines{position:absolute;inset:-52px;z-index:-2;opacity:.14;background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:52px 52px;mask-image:linear-gradient(to bottom,black,transparent 82%);animation:gridCurrent 14s linear infinite}
+    @keyframes gridCurrent{to{transform:translate3d(52px,52px,0)}}
+    .power-streams{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+    .power-streams i{position:absolute;left:var(--x);bottom:-90px;width:2px;height:72px;border-radius:999px;background:linear-gradient(to top,transparent,rgba(39,229,206,.92));box-shadow:0 0 14px rgba(39,229,206,.55);opacity:0;transform:rotate(18deg);animation:powerRise var(--speed) var(--delay) linear infinite}
+    .power-streams i:nth-child(3n){background:linear-gradient(to top,transparent,rgba(199,249,62,.85));box-shadow:0 0 14px rgba(199,249,62,.45)}
+    @keyframes powerRise{0%{transform:translate3d(0,0,0) rotate(18deg) scaleY(.55);opacity:0}12%{opacity:.58}82%{opacity:.34}100%{transform:translate3d(150px,-920px,0) rotate(18deg) scaleY(1.15);opacity:0}}
+    .energy-wave{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+    .energy-wave span{position:absolute;display:block;border:1px solid rgba(39,229,206,.18);border-radius:50%;animation:waveDrift 9s ease-in-out infinite}
+    .energy-wave span:nth-child(1){width:170px;height:170px;left:47%;top:18%}
+    .energy-wave span:nth-child(2){width:72px;height:72px;left:7%;top:62%;animation-delay:-3s;border-color:rgba(199,249,62,.22)}
+    .energy-wave span:nth-child(3){width:110px;height:110px;right:5%;bottom:8%;animation-delay:-6s}
+    @keyframes waveDrift{0%,100%{transform:translate3d(0,0,0) rotate(0);opacity:.35}50%{transform:translate3d(0,-24px,0) rotate(120deg);opacity:.85}}
+    .hero-copy>*{animation:heroEnter .7s cubic-bezier(.22,1,.36,1) both}
+    .hero-copy>h1{animation-delay:.08s}.hero-copy>p{animation-delay:.16s}.hero-actions{animation-delay:.24s}.proof{animation-delay:.32s}
+    .calculator{animation:cardEnter .9s .12s cubic-bezier(.22,1,.36,1) both}
+    @keyframes heroEnter{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+    @keyframes cardEnter{from{opacity:0;transform:translateY(24px) rotate(1deg)}to{opacity:1;transform:none}}
+    .hero-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(420px,.95fr);gap:70px;align-items:center}
+    .eyebrow{display:inline-flex;align-items:center;gap:10px;margin:0 0 22px;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#d9f5ef}
+    .pulse{width:9px;height:9px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 7px rgba(185,242,39,.12);animation:pulse 2.2s ease-out infinite}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 7px rgba(185,242,39,.12)}50%{box-shadow:0 0 0 13px rgba(185,242,39,0)}}
+    h1,h2,h3{font-family:var(--display);line-height:1.08;margin:0}
+    h1{font-size:clamp(48px,6.1vw,78px);max-width:720px;letter-spacing:-.045em}
+    h1 em{font-style:normal;color:var(--lime)}
+    .hero-copy>p{max-width:620px;margin:26px 0 32px;font-size:18px;color:#b9cbd1}
+    .hero-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+    .primary{display:inline-flex;align-items:center;justify-content:center;gap:11px;border:0;border-radius:13px;padding:15px 21px;background:var(--lime);color:#12220d;font-weight:800;box-shadow:0 12px 30px rgba(185,242,39,.16)}
+    .primary:hover{background:#d3ff5c}
+    .text-link{display:inline-flex;align-items:center;gap:9px;color:#e8f4f1;font-weight:700}
+    .text-link span{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.24)}
+    .proof{display:flex;align-items:center;gap:24px;margin-top:42px;color:#a9bec5;font-size:13px;font-weight:600}
+    .proof-item{display:flex;gap:8px;align-items:center}
+    .proof-item svg{width:17px;color:var(--aqua)}
+    .calculator{position:relative;background:var(--surface);color:var(--ink);border-radius:28px;padding:28px;box-shadow:0 34px 100px rgba(0,0,0,.32);overflow:hidden}
+    .calculator:before{content:"";position:absolute;inset:0 0 auto;height:5px;background:linear-gradient(90deg,var(--aqua),var(--lime))}
+    .calc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:22px}
+    .calc-head h2{font-size:25px;letter-spacing:-.02em}
+    .calc-head p{margin:5px 0 0;color:var(--muted);font-size:13px}
+    .bolt{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--lime-soft);color:#477100;flex:0 0 auto}
+    .bolt svg{width:25px}
+    .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .field{display:block}
+    .field.wide{grid-column:1/-1}
+    .field span{display:block;margin:0 0 7px;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.015em}
+    .input-shell{position:relative}
+    .input-shell input{width:100%;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);padding:13px 48px 13px 14px;outline:none;font-weight:700}
+    .input-shell input:focus{border-color:var(--aqua);box-shadow:0 0 0 4px rgba(25,215,193,.12)}
+    .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);font-weight:800}
+    .calc-button{width:100%;margin-top:18px;border:0;border-radius:12px;padding:14px;background:var(--aqua);color:#042d29;font-weight:800}
+    .calc-button:hover{filter:brightness(1.05)}
+    .result{margin-top:18px;border-radius:17px;padding:18px;background:var(--navy);color:white}
+    .result-top{display:flex;justify-content:space-between;gap:20px;align-items:end}
+    .result small{display:block;color:#9ab3bc;font-weight:700}
+    .amount{font-family:var(--display);font-size:33px;font-weight:800;letter-spacing:-.03em;color:var(--lime);line-height:1.15}
+    .usage-pill{padding:6px 10px;border-radius:999px;background:rgba(25,215,193,.12);color:#77ecdf;font-size:11px;font-weight:800;white-space:nowrap}
+    .meter{height:6px;border-radius:999px;margin:15px 0 7px;background:#183746;overflow:hidden}
+    .meter span{display:block;height:100%;width:42%;border-radius:inherit;background:linear-gradient(90deg,var(--aqua),var(--lime));transition:width .6s cubic-bezier(.22,1,.36,1)}
+    .breakdown{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+    .breakdown b{display:block;color:#edf8f5;font-size:13px}
+    .breakdown span{font-size:10px;color:#8fa9b2;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+    .disclaimer{margin:10px 2px 0;font-size:10px;color:var(--muted)}
+    .trust{position:relative;z-index:3;margin-top:-31px}
+    .trust-inner{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);box-shadow:var(--shadow);border-radius:18px;overflow:hidden}
+    .trust-item{display:flex;align-items:center;gap:13px;padding:22px 24px;border-right:1px solid var(--line)}
+    .trust-item:last-child{border-right:0}
+    .trust-icon{display:grid;place-items:center;width:39px;height:39px;border-radius:10px;background:var(--aqua-soft);color:#087e72;flex:0 0 auto}
+    .trust-icon svg{width:19px}
+    .trust-item b{display:block;font-family:var(--display);font-size:15px;line-height:1.2}
+    .trust-item span{color:var(--muted);font-size:11px}
+    section{padding:104px 0}
+    .section-head{display:grid;grid-template-columns:.8fr 1.2fr;gap:72px;align-items:end;margin-bottom:52px}
+    .section-head h2{font-size:clamp(38px,5vw,60px);letter-spacing:-.04em;max-width:560px}
+    .section-head p{margin:0;color:var(--muted);max-width:570px;font-size:17px}
+    .label{display:flex;align-items:center;gap:9px;margin-bottom:14px;color:#0a8f81;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+    .label:before{content:"";width:24px;height:2px;background:var(--aqua)}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .step{position:relative;min-height:310px;padding:28px;border-radius:18px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+    .step:nth-child(2){transform:translateY(18px)}
+    .step-no{font-family:var(--display);font-weight:800;font-size:66px;line-height:1;color:transparent;-webkit-text-stroke:1px var(--line);position:absolute;right:20px;top:18px}
+    .step-icon{position:relative;width:78px;height:78px;margin:24px 0 38px;display:grid;place-items:center;border-radius:24px 24px 24px 7px;background:var(--navy);color:var(--aqua)}
+    .step-icon svg{width:34px;animation:bob 3.2s ease-in-out infinite}
+    .step:nth-child(2) .step-icon svg{animation-delay:.6s}
+    .step:nth-child(3) .step-icon svg{animation-delay:1.2s}
+    @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    .step h3{font-size:24px;letter-spacing:-.02em}
+    .step p{margin:12px 0 0;color:var(--muted);font-size:14px}
+    .feature-section{position:relative;isolation:isolate;background:var(--surface-2);overflow:hidden}
+    .feature-section:before,.feature-section:after{content:"";position:absolute;z-index:-1;width:380px;height:380px;border-radius:50%;filter:blur(80px);opacity:.1;animation:sectionGlow 12s ease-in-out infinite}
+    .feature-section:before{left:-170px;top:10%;background:var(--aqua)}
+    .feature-section:after{right:-190px;bottom:4%;background:var(--lime);animation-delay:-6s}
+    @keyframes sectionGlow{0%,100%{transform:translateY(0) scale(.9)}50%{transform:translateY(70px) scale(1.12)}}
+    .feature-layout{display:grid;grid-template-columns:.82fr 1.18fr;gap:64px;align-items:center}
+    .feature-copy h2{font-size:clamp(40px,5vw,60px);letter-spacing:-.04em}
+    .feature-copy>p{color:var(--muted);font-size:17px;margin:22px 0 30px}
+    .feature-list{display:grid;gap:12px}
+    .feature-list-item{display:flex;gap:12px;align-items:center;font-weight:700;font-size:14px}
+    .feature-list-item i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--aqua-soft);color:#087e72;font-style:normal}
+    .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .feature{position:relative;min-height:218px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px;overflow:hidden;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+    .feature:before{content:"";position:absolute;width:110px;height:110px;border-radius:50%;right:-64px;top:-64px;background:var(--aqua-soft);opacity:.55;transition:transform .45s ease}
+    .feature:hover:before{transform:scale(1.35)}
+    .feature:hover{transform:translateY(-4px);border-color:var(--aqua)}
+    .feature:nth-child(2),.feature:nth-child(4){transform:translateY(20px)}
+    .feature:nth-child(2):hover,.feature:nth-child(4):hover{transform:translateY(16px)}
+    .feature-icon{position:relative;display:grid;place-items:center;width:55px;height:55px;border-radius:15px;background:var(--navy);color:var(--lime);margin-bottom:28px;overflow:hidden}
+    .feature-icon:after{content:"";position:absolute;width:30px;height:2px;background:var(--aqua);bottom:8px;left:-32px;animation:scan 2.4s linear infinite}
+    @keyframes scan{to{left:58px}}
+    .feature-icon svg{width:26px}
+    .feature h3{font-size:19px}
+    .feature p{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.55}
+    .feature:hover .feature-icon svg{animation:iconKick .65s cubic-bezier(.22,1,.36,1)}
+    @keyframes iconKick{0%{transform:scale(.78) rotate(-8deg)}55%{transform:scale(1.14) rotate(4deg)}100%{transform:none}}
+    .insights{overflow:hidden}
+    .insight-board{position:relative;background:var(--navy);color:#fff;border-radius:30px;padding:54px;overflow:hidden}
+    .insight-board:after{content:"";position:absolute;right:-120px;bottom:-170px;width:430px;height:430px;border-radius:50%;border:80px solid rgba(25,215,193,.08)}
+    .insight-top{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}
+    .insight-copy h2{font-size:clamp(38px,5vw,58px);letter-spacing:-.04em;max-width:500px}
+    .insight-copy p{color:#adc1c7;max-width:500px;margin:20px 0 0}
+    .usage-bars{display:grid;gap:17px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:25px;border-radius:18px}
+    .bar-head{display:flex;justify-content:space-between;gap:15px;font-size:12px;font-weight:700;color:#d5e3e6}
+    .bar-track{height:8px;border-radius:999px;background:#183848;overflow:hidden;margin-top:8px}
+    .bar-track span{display:block;height:100%;border-radius:inherit;background:var(--aqua)}
+    .bar:nth-child(2) .bar-track span{background:var(--lime)}
+    .bar:nth-child(3) .bar-track span{background:var(--amber)}
+    .tips-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:40px}
+    .tip{padding:22px;border-radius:15px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09)}
+    .tip strong{display:block;font-family:var(--display);font-size:17px;margin-bottom:7px;color:#f4fffc}
+    .tip p{margin:0;color:#9db4bc;font-size:12px}
+    .compare{padding-top:82px;background:var(--surface)}
+    .compare-shell{border:1px solid var(--line);border-radius:26px;overflow:hidden;background:var(--bg);box-shadow:0 20px 50px rgba(6,28,44,.06)}
+    .compare-head{display:grid;grid-template-columns:1.25fr .75fr .8fr;align-items:center;padding:22px 26px;background:var(--navy);color:#fff;font-family:var(--display);font-size:15px;font-weight:800}
+    .compare-brand{display:inline-flex;align-items:center;gap:9px;color:var(--lime)}
+    .mini-bolt{display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:var(--lime);color:#10210c}
+    .mini-bolt svg{width:13px}
+    .compare-row{display:grid;grid-template-columns:1.25fr .75fr .8fr;align-items:center;min-height:66px;padding:0 26px;border-bottom:1px solid var(--line);font-size:14px}
+    .compare-row:last-child{border-bottom:0}
+    .compare-row:hover{background:var(--surface)}
+    .compare-row>strong{font-family:var(--display);font-size:15px}
+    .status{display:inline-flex;align-items:center;gap:8px;font-weight:700}
+    .status i{display:grid;place-items:center;width:23px;height:23px;border-radius:50%;font-style:normal;font-size:12px}
+    .status.yes{color:#087e72}.status.yes i{background:var(--aqua-soft)}
+    .status.maybe{color:var(--muted)}.status.maybe i{background:var(--surface-2)}
+    .compare-note{margin:16px 0 0;color:var(--muted);font-size:12px;text-align:center}
+    .faq{background:var(--surface)}
+    .faq-layout{display:grid;grid-template-columns:.78fr 1.22fr;gap:86px;align-items:start}
+    .faq-intro{position:sticky;top:30px}
+    .faq-intro h2{font-size:clamp(40px,5vw,60px);letter-spacing:-.04em}
+    .faq-intro p{color:var(--muted);margin:20px 0 0}
+    .questions{border-top:1px solid var(--line)}
+    .question{border-bottom:1px solid var(--line)}
+    .q-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:23px 0;border:0;background:transparent;color:var(--ink);text-align:left;font-family:var(--display);font-size:18px;font-weight:700}
+    .q-btn span:last-child{display:grid;place-items:center;width:29px;height:29px;border-radius:50%;background:var(--surface-2);font-family:var(--body);font-size:20px;transition:transform .25s ease}
+    .question.open .q-btn span:last-child{transform:rotate(45deg);background:var(--aqua-soft)}
+    .answer{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}
+    .answer>div{overflow:hidden}
+    .answer p{margin:0 48px 22px 0;color:var(--muted);font-size:14px}
+    .question.open .answer{grid-template-rows:1fr}
+    .cta{padding:82px 0}
+    .cta-box{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center;background:var(--lime);color:#10210c;border-radius:28px;padding:46px 52px;overflow:hidden}
+    .cta-box:before{content:"";position:absolute;width:250px;height:250px;border:45px solid rgba(5,49,43,.08);border-radius:50%;right:-70px;top:-110px}
+    .cta-box h2{font-size:clamp(34px,5vw,54px);letter-spacing:-.04em;max-width:630px}
+    .cta-box p{margin:14px 0 0;max-width:620px;color:#344625}
+    .cta-action{justify-self:end;position:relative;z-index:1;display:inline-flex;align-items:center;gap:10px;padding:15px 20px;border-radius:13px;background:var(--navy);color:white;font-weight:800}
+    footer{position:relative;padding:66px 0 26px;background:var(--navy);color:#fff;overflow:hidden}
+    footer:after{content:"";position:absolute;width:330px;height:330px;border:58px solid rgba(25,215,193,.06);border-radius:50%;right:-120px;bottom:-190px}
+    .footer-main{position:relative;z-index:1;display:grid;grid-template-columns:1.35fr .65fr .65fr;gap:72px;padding-bottom:42px}
+    .footer-brand{max-width:430px}
+    .footer-brand .brand{margin-bottom:17px}
+    .footer-brand p{margin:0;color:#9fb3ba;font-size:14px}
+    .footer-column h3{font-size:14px;margin-bottom:15px;color:#f1fbf8}
+    .footer-links{display:grid;gap:10px;color:#9fb3ba;font-size:13px;font-weight:600}
+    .footer-links a:hover{color:var(--lime)}
+    .footer-bottom{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:24px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1);color:#849da6;font-size:11px}
+    .footer-status{display:inline-flex;align-items:center;gap:8px}.footer-status:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 5px rgba(185,242,39,.08)}
+    .reveal{opacity:1;transform:none}
+    .reveal.in-view{animation:revealIn .65s cubic-bezier(.22,1,.36,1) both}
+    @keyframes revealIn{from{opacity:.01;transform:translateY(22px)}to{opacity:1;transform:none}}
+    .toast{position:fixed;right:18px;bottom:18px;z-index:50;max-width:340px;padding:14px 16px;border-radius:12px;background:var(--navy);color:#fff;box-shadow:var(--shadow);font-size:13px;font-weight:700;transform:translateY(120px);opacity:0;transition:.3s ease}
+    .toast.show{transform:translateY(0);opacity:1}
+    @media(max-width:900px){
+      .wrap{width:min(100% - 30px,720px)}
+      .hero{padding-top:120px}
+      .hero-grid{grid-template-columns:1fr;gap:48px}
+      .calculator{max-width:620px}
+      .trust-inner{grid-template-columns:1fr 1fr}
+      .trust-item:nth-child(2){border-right:0}
+      .trust-item:nth-child(-n+2){border-bottom:1px solid var(--line)}
+      .section-head,.feature-layout,.faq-layout,.insight-top{grid-template-columns:1fr;gap:34px}
+      .footer-main{grid-template-columns:1fr 1fr;gap:38px}.footer-brand{grid-column:1/-1}
+      .section-head{align-items:start}
+      .feature-copy{max-width:660px}
+      .faq-intro{position:static}
+      .insight-board{padding:38px}
+      .cta-box{grid-template-columns:1fr}
+      .cta-action{justify-self:start}
+    }
+    @media(max-width:680px){
+      .wrap{width:calc(100% - 24px)}
+      header{padding-top:8px}
+      .nav{height:60px;padding:0 12px}
+      .brand{font-size:17px}.brand-mark{width:31px;height:31px}
+      .nav-links{position:absolute;left:12px;right:12px;top:68px;display:none;flex-direction:column;align-items:stretch;padding:18px;border-radius:14px;background:#0c2a3b;box-shadow:0 16px 40px rgba(0,0,0,.35)}
+      .nav-links.open{display:flex}
+      .menu-btn{display:block;margin-left:auto}
+      .nav-cta{display:none}
+      .hero{min-height:auto;padding:116px 0 68px}
+      h1{font-size:45px}
+      .hero-copy>p{font-size:16px}
+      .proof{gap:12px;align-items:flex-start;flex-direction:column}
+      .calculator{padding:22px 17px;border-radius:22px}
+      .field-grid{grid-template-columns:1fr}
+      .field.wide{grid-column:auto}
+      .trust{margin-top:16px}
+      .trust-inner{grid-template-columns:1fr;border-radius:16px}
+      .trust-item,.trust-item:nth-child(2){border-right:0;border-bottom:1px solid var(--line)}
+      .trust-item:last-child{border-bottom:0}
+      section{padding:76px 0}
+      .section-head{margin-bottom:34px}
+      .steps,.feature-grid,.tips-grid{grid-template-columns:1fr}
+      .step,.step:nth-child(2){transform:none;min-height:270px}
+      .feature:nth-child(2),.feature:nth-child(4),.feature:nth-child(2):hover,.feature:nth-child(4):hover{transform:none}
+      .feature{min-height:0}
+      .insight-board{padding:30px 20px;border-radius:22px}
+      .tips-grid{margin-top:28px}
+      .compare-shell{border:0;background:transparent;box-shadow:none;overflow:visible}
+      .compare-head{display:none}
+      .compare-row{grid-template-columns:1fr 1fr;gap:12px;padding:18px;margin-bottom:12px;border:1px solid var(--line);border-radius:16px;background:var(--bg)}
+      .compare-row>strong{grid-column:1/-1;padding-bottom:10px;border-bottom:1px solid var(--line)}
+      .status{align-items:flex-start;flex-direction:column;gap:5px;font-size:12px}
+      .status:before{content:attr(data-label);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+      .cta{padding:62px 0}
+      .cta-box{padding:34px 24px;border-radius:22px}
+      .footer-main{grid-template-columns:1fr;gap:30px}.footer-brand{grid-column:auto}
+      .footer-bottom{flex-direction:column;align-items:flex-start}
+    }
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+  </style>
+</head>
+<body>
+  <div class="ambient-orbs" aria-hidden="true"><span></span><span></span></div>
+  <header>
+    <nav class="nav wrap" aria-label="Primary navigation">
+      <a class="brand" href="#calculator" aria-label="WattWise calculator">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m13 2-8 12h7l-1 8 8-12h-7z"/></svg></span>
+        WattWise
+      </a>
+      <button class="menu-btn" aria-label="Open menu" aria-expanded="false">
+        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#tips">Saving tips</a>
+        <a href="#compare">Compare</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <a class="nav-cta" href="#calculator">
+        Estimate bill
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="grid-lines"></div>
+      <div class="power-streams" aria-hidden="true">
+        <i style="--x:5%;--speed:8.2s;--delay:-2.1s"></i><i style="--x:17%;--speed:10.4s;--delay:-6.4s"></i><i style="--x:29%;--speed:9.1s;--delay:-4.2s"></i><i style="--x:43%;--speed:11.6s;--delay:-8.5s"></i><i style="--x:57%;--speed:8.8s;--delay:-1.7s"></i><i style="--x:69%;--speed:10.8s;--delay:-7.2s"></i><i style="--x:82%;--speed:9.7s;--delay:-3.4s"></i><i style="--x:94%;--speed:12.2s;--delay:-9.6s"></i>
+      </div>
+      <div class="energy-wave" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="pulse"></span> Smart electricity planning</div>
+          <h1 id="hero-title">Know your bill <em>before it arrives.</em></h1>
+          <p>Turn meter units into a clear monthly estimate. Use your own tariff, fixed charges and tax rate for a result shaped around your connection.</p>
+          <div class="hero-actions">
+            <a class="primary" href="#calculator">
+              Start estimating
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            </a>
+            <a class="text-link" href="#how"><span>↓</span> See how it works</a>
+          </div>
+          <div class="proof">
+            <div class="proof-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg> No sign-up</div>
+            <div class="proof-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg> Your own rates</div>
+            <div class="proof-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg> Instant breakdown</div>
+          </div>
+        </div>
+
+        <div class="calculator" id="calculator">
+          <div class="calc-head">
+            <div><h2>Monthly bill estimator</h2><p>Enter the figures from your tariff or previous bill.</p></div>
+            <div class="bolt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m13 2-8 12h7l-1 8 8-12h-7z"/></svg></div>
+          </div>
+          <form id="calcForm">
+            <div class="field-grid">
+              <label class="field wide"><span>UNITS CONSUMED</span><div class="input-shell"><input id="units" inputmode="decimal" type="number" min="0" step="1" value="250" aria-label="Units consumed"><b class="unit">kWh</b></div></label>
+              <label class="field"><span>RATE PER UNIT</span><div class="input-shell"><input id="rate" inputmode="decimal" type="number" min="0" step="0.01" value="0" aria-label="Rate per unit"><b class="unit">PKR</b></div></label>
+              <label class="field"><span>FIXED CHARGES</span><div class="input-shell"><input id="fixed" inputmode="decimal" type="number" min="0" step="0.01" value="0" aria-label="Fixed charges"><b class="unit">PKR</b></div></label>
+              <label class="field"><span>TAX / SURCHARGE</span><div class="input-shell"><input id="tax" inputmode="decimal" type="number" min="0" step="0.1" value="0" aria-label="Tax or surcharge percent"><b class="unit">%</b></div></label>
+              <label class="field"><span>OTHER CHARGES</span><div class="input-shell"><input id="other" inputmode="decimal" type="number" min="0" step="0.01" value="0" aria-label="Other charges"><b class="unit">PKR</b></div></label>
+            </div>
+            <button class="calc-button" type="submit">Calculate estimated bill</button>
+          </form>
+          <div class="result" aria-live="polite">
+            <div class="result-top"><div><small>ESTIMATED TOTAL</small><div class="amount" id="amount">PKR 0</div></div><div class="usage-pill" id="usageLabel">Add your rate</div></div>
+            <div class="meter"><span id="meterFill"></span></div>
+            <div class="breakdown"><div><b id="energyCost">PKR 0</b><span>Energy</span></div><div><b id="taxCost">PKR 0</b><span>Tax</span></div><div><b id="extraCost">PKR 0</b><span>Extras</span></div></div>
+          </div>
+          <p class="disclaimer">Planning estimate only. Your provider may apply slabs, fuel adjustments, duties or other charges not entered here.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="trust wrap" aria-label="Tool highlights">
+      <div class="trust-inner">
+        <div class="trust-item"><div class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><b>Instant estimate</b><span>Updates in one click</span></div></div>
+        <div class="trust-item"><div class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2"/></svg></div><div><b>Clear breakdown</b><span>See every component</span></div></div>
+        <div class="trust-item"><div class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></div><div><b>Private by design</b><span>No account details needed</span></div></div>
+        <div class="trust-item"><div class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></svg></div><div><b>Mobile ready</b><span>Use beside your meter</span></div></div>
+      </div>
+    </div>
+
+    <section id="how">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div><div class="label">Three simple steps</div><h2>From meter reading to monthly estimate.</h2></div>
+          <p>No reference number or account login needed. Use the figures printed on your tariff notice or previous bill to build a transparent estimate.</p>
+        </div>
+        <div class="steps reveal">
+          <article class="step"><div class="step-no">01</div><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 21h14M7 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16"/><path d="M9 7h6v5H9zM10 17h4"/></svg></div><h3>Read your units</h3><p>Take the current meter reading minus the previous reading, or use the units shown on your latest bill.</p></article>
+          <article class="step"><div class="step-no">02</div><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v16H4zM8 8h8M8 12h3m2 0h3M8 16h3m2 0h3"/></svg></div><h3>Add your tariff</h3><p>Enter your effective rate per unit, fixed amount, estimated tax and any other listed monthly charges.</p></article>
+          <article class="step"><div class="step-no">03</div><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V9m5 10v-5m5 5V5m5 14v-8"/><path d="m4 7 5 3 5-7 5 4"/></svg></div><h3>Review your total</h3><p>See energy cost, tax and extra charges separately, then adjust usage to explore a lower-bill target.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="feature-section" id="features">
+      <div class="wrap feature-layout reveal">
+        <div class="feature-copy"><div class="label">Built for clarity</div><h2>Every number has somewhere to go.</h2><p>Electricity bills can be difficult to predict. This calculator separates the major cost drivers so you can test scenarios without guessing.</p><div class="feature-list"><div class="feature-list-item"><i>✓</i> Adjustable tariff and taxes</div><div class="feature-list-item"><i>✓</i> Transparent cost breakdown</div><div class="feature-list-item"><i>✓</i> Works for any electricity provider</div></div></div>
+        <div class="feature-grid">
+          <article class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9m5 10v-6m5 6V5m5 14V8"/></svg></div><h3>Usage visualizer</h3><p>The live meter turns your unit count into an easy low, moderate or high-use signal.</p></article>
+          <article class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M17 6.5H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"/></svg></div><h3>Flexible charges</h3><p>Include fixed fees, taxes and other adjustments instead of relying on a single flat rate.</p></article>
+          <article class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>No personal data</h3><p>The estimate uses only the values you type. No consumer number or account identity is requested.</p></article>
+          <article class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20V10M7 20v-6m10 6V4"/><path d="M4 20h16"/></svg></div><h3>Scenario planning</h3><p>Change the units to compare different usage levels and set a practical monthly target.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="insights" id="tips">
+      <div class="wrap insight-board reveal">
+        <div class="insight-top">
+          <div class="insight-copy"><div class="label">Smarter consumption</div><h2>Small changes. Visible impact.</h2><p>Start with the appliances that run longest or consume the most power. A few consistent adjustments can lower total monthly units.</p></div>
+          <div class="usage-bars" aria-label="Illustrative appliance priority bars">
+            <div class="bar"><div class="bar-head"><span>Cooling & heating</span><span>Review first</span></div><div class="bar-track"><span style="width:86%"></span></div></div>
+            <div class="bar"><div class="bar-head"><span>Water heating</span><span>Review second</span></div><div class="bar-track"><span style="width:63%"></span></div></div>
+            <div class="bar"><div class="bar-head"><span>Lighting & standby</span><span>Quick wins</span></div><div class="bar-track"><span style="width:42%"></span></div></div>
+          </div>
+        </div>
+        <div class="tips-grid">
+          <article class="tip"><strong>Control cooling</strong><p>Use timers, close unused rooms and clean filters so cooling systems do less work.</p></article>
+          <article class="tip"><strong>Shift heavy loads</strong><p>If your provider offers time-of-use rates, run heavy appliances outside peak hours.</p></article>
+          <article class="tip"><strong>Cut standby use</strong><p>Switch off idle chargers, screens and entertainment devices at the power source.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="compare" id="compare">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div><div class="label">A clearer choice</div><h2>WattWise vs a typical bill calculator.</h2></div>
+          <p>WattWise keeps the assumptions visible. You control the tariff, tax and extra charges instead of relying on a hidden one-size-fits-all total.</p>
+        </div>
+        <div class="compare-shell reveal" role="table" aria-label="WattWise and typical calculator comparison">
+          <div class="compare-head" role="row"><span role="columnheader">Capability</span><span class="compare-brand" role="columnheader"><span class="mini-bolt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m13 2-8 12h7l-1 8 8-12h-7z"/></svg></span>WattWise</span><span role="columnheader">Typical calculator</span></div>
+          <div class="compare-row" role="row"><strong role="cell">Use your exact rate</strong><span class="status yes" data-label="WattWise" role="cell"><i>✓</i> Fully adjustable</span><span class="status maybe" data-label="Typical calculator" role="cell"><i>—</i> Often preset</span></div>
+          <div class="compare-row" role="row"><strong role="cell">Separate tax and extras</strong><span class="status yes" data-label="WattWise" role="cell"><i>✓</i> Itemized inputs</span><span class="status maybe" data-label="Typical calculator" role="cell"><i>—</i> Usually bundled</span></div>
+          <div class="compare-row" role="row"><strong role="cell">Provider flexibility</strong><span class="status yes" data-label="WattWise" role="cell"><i>✓</i> Provider-neutral</span><span class="status maybe" data-label="Typical calculator" role="cell"><i>—</i> Often limited</span></div>
+          <div class="compare-row" role="row"><strong role="cell">Instant scenario planning</strong><span class="status yes" data-label="WattWise" role="cell"><i>✓</i> Live recalculation</span><span class="status maybe" data-label="Typical calculator" role="cell"><i>—</i> Re-submit needed</span></div>
+          <div class="compare-row" role="row"><strong role="cell">Account details required</strong><span class="status yes" data-label="WattWise" role="cell"><i>✓</i> Never</span><span class="status maybe" data-label="Typical calculator" role="cell"><i>—</i> Sometimes</span></div>
+        </div>
+        <p class="compare-note">Comparison describes common calculator patterns; individual tools may differ.</p>
+      </div>
+    </section>
+
+    <section class="faq" id="faq">
+      <div class="wrap faq-layout reveal">
+        <div class="faq-intro"><div class="label">Good to know</div><h2>Questions, answered clearly.</h2><p>The estimate is designed for planning. Your issued bill remains the final source for payable charges.</p></div>
+        <div class="questions">
+          <div class="question open"><button class="q-btn" aria-expanded="true"><span>Is this an official electricity bill?</span><span>+</span></button><div class="answer"><div><p>No. It is a planning estimate based on the units and charges you enter. Always use your provider’s issued bill for the final payable amount.</p></div></div></div>
+          <div class="question"><button class="q-btn" aria-expanded="false"><span>Where do I find my rate per unit?</span><span>+</span></button><div class="answer"><div><p>Check the tariff or energy-charge section on a recent bill. If your connection uses multiple slabs, calculate an effective average rate or run separate comparisons.</p></div></div></div>
+          <div class="question"><button class="q-btn" aria-expanded="false"><span>Why might the actual bill be different?</span><span>+</span></button><div class="answer"><div><p>Providers may apply slab pricing, fuel adjustments, duties, minimum charges, arrears or regional fees. Add known items under fixed or other charges for a closer estimate.</p></div></div></div>
+          <div class="question"><button class="q-btn" aria-expanded="false"><span>Can I use it with any provider?</span><span>+</span></button><div class="answer"><div><p>Yes. The calculator is provider-neutral because you supply the rate, tax and additional charges yourself.</p></div></div></div>
+          <div class="question"><button class="q-btn" aria-expanded="false"><span>Does it save my information?</span><span>+</span></button><div class="answer"><div><p>No. The calculator does not ask for an account number and the figures are not stored between visits.</p></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="wrap cta-box reveal">
+        <div><h2>Put a number on next month’s usage.</h2><p>Enter your own rate and charges, then adjust the units until the estimate fits your energy target.</p></div>
+        <a class="cta-action" href="#calculator">Open calculator <span>↗</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="footer-main">
+        <div class="footer-brand">
+          <a class="brand" href="#calculator"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m13 2-8 12h7l-1 8 8-12h-7z"/></svg></span>WattWise</a>
+          <p>Turn your electricity usage into a transparent monthly estimate, using rates and charges you control.</p>
+        </div>
+        <div class="footer-column"><h3>Explore</h3><div class="footer-links"><a href="#how">How it works</a><a href="#features">Features</a><a href="#tips">Saving tips</a></div></div>
+        <div class="footer-column"><h3>Calculator</h3><div class="footer-links"><a href="#calculator">Estimate bill</a><a href="#compare">Compare tools</a><a href="#faq">Common questions</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>Electricity estimates for planning—not payment.</span><span class="footer-status">Ready when your next reading is</span></div>
+    </div>
+  </footer>
+  <div class="toast" role="status" aria-live="polite" id="toast">Estimate updated.</div>
+
+  <script>
+    (function(){
+      var form=document.getElementById('calcForm');
+      var ids=['units','rate','fixed','tax','other'];
+      var fields={}; ids.forEach(function(id){fields[id]=document.getElementById(id);});
+      function value(id){var n=parseFloat(fields[id].value);return Number.isFinite(n)&&n>=0?n:0;}
+      function money(n){return 'PKR '+Math.round(n).toLocaleString('en-PK');}
+      function calculate(showToast){
+        var units=value('units'),rate=value('rate'),fixed=value('fixed'),taxRate=value('tax'),other=value('other');
+        var energy=units*rate;
+        var tax=energy*(taxRate/100);
+        var extras=fixed+other;
+        var total=energy+tax+extras;
+        document.getElementById('amount').textContent=money(total);
+        document.getElementById('energyCost').textContent=money(energy);
+        document.getElementById('taxCost').textContent=money(tax);
+        document.getElementById('extraCost').textContent=money(extras);
+        var label=rate<=0?'Add your rate':units<=100?'Low usage':units<=300?'Moderate usage':'High usage';
+        document.getElementById('usageLabel').textContent=label;
+        document.getElementById('meterFill').style.width=Math.min(100,Math.max(6,units/7))+'%';
+        if(showToast){var toast=document.getElementById('toast');toast.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(function(){toast.classList.remove('show');},2200);}
+      }
+      form.addEventListener('submit',function(e){e.preventDefault();calculate(true);});
+      ids.forEach(function(id){fields[id].addEventListener('input',function(){calculate(false);});});
+      calculate(false);
+
+      document.querySelectorAll('.q-btn').forEach(function(btn){btn.addEventListener('click',function(){var item=btn.parentElement;var open=item.classList.contains('open');document.querySelectorAll('.question').forEach(function(q){q.classList.remove('open');q.querySelector('.q-btn').setAttribute('aria-expanded','false');});if(!open){item.classList.add('open');btn.setAttribute('aria-expanded','true');}});});
+      var menu=document.querySelector('.menu-btn'),links=document.querySelector('.nav-links');
+      menu.addEventListener('click',function(){var open=links.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));});
+      links.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){links.classList.remove('open');menu.setAttribute('aria-expanded','false');});});
+
+      var reveals=document.querySelectorAll('.reveal');
+      if('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+        var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){entry.target.classList.add('in-view');observer.unobserve(entry.target);}});},{threshold:.12,rootMargin:'0px 0px -40px'});
+        reveals.forEach(function(el){observer.observe(el);});
+      }else{reveals.forEach(function(el){el.classList.add('in-view');});}
+    })();
+  </script>
+</body>
+</html>
